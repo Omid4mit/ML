@@ -27,6 +27,4 @@ for name, model in models.items():
     model.fit(X_train, y_train)
     print(f"{name}: {model.score(X_test, y_test):.2f}")
 
-print("--- %s seconds ---" % (time.time() - start_time))
-print('New')
-print('New2')
+print("--- %s seconds ----" % (time.time() - start_time))
