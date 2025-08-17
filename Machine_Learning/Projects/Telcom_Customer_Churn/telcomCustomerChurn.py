@@ -97,6 +97,15 @@ for name, model in models.items():
     print(f"ROC AUC : {rocAucScore}")
     print(f"Confusion Matrix: {confusionMatrix}")
     print("-" * (len(name) + 8) + "\n")
-      
+
+    plt.figure(figsize = (8, 6,))
+    sns.heatmap(confusionMatrix, annot=True, fmt='d', cmap='Blues',
+                xticklabels=['No Churn', 'Churn'],
+                yticklabels=['No Churn', 'Churn'])
+    
+    plt.xlabel('Predicted Label')
+    plt.ylabel('Actual Label')
+    plt.title(f"Confusion Matrix for {name}")
+    
 
 plt.show()
