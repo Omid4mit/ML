@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
+
 # 1. Data Cleaning and Preprocessing
 
 # Load Data
@@ -22,21 +23,6 @@ df_test = pd.DataFrame(loadTestData)
 
 # Find Null Values in Train Data
 df_train['1stFlrSF'].isnull().sum()
-print('Count of Null Values in Each Columns:')
-for i in df_train.columns:
-    nullValues = df_train[i].isnull().sum()
-    if nullValues > 0:
-        print(f'{i} = {nullValues}')
-
-
-# Find Null Values in Test Data
-df_test['1stFlrSF'].isnull().sum()
-print('Count of Null Values in Each Columns:')
-for i in df_test.columns:
-    nullValues = df_test[i].isnull().sum()
-    if nullValues > 0:
-        print(f'{i} = {nullValues}')
-
 
 # Find Null Values
 mask = df_train.map(lambda x: x == '' or x == ' ')
@@ -44,6 +30,7 @@ mask = df_train.map(lambda x: x == '' or x == ' ')
 # Fill Null ('' or ' ') Values with np.na
 df_train.replace({'': np.nan, ' ': np.nan}, inplace= True)
 df_test.replace({'': np.nan, ' ': np.nan}, inplace= True)
+
 for col in df_train.columns:
     if df_train[col].isnull().any():
         if pd.api.types.is_numeric_dtype(df_train[col]):
@@ -59,10 +46,9 @@ for col in df_test.columns:
             df_test[col] = df_test[col].fillna('Unknown')
 
 
-# All Columns Data Type
-for i in df_train.columns:
-    print(f"{i}: {df_train[i].dtype}")
 
+# Set Output Path for Saving Files
+output_dir = Path(__file__).parent
 
 # 2. Exploratory Data Analysis (EDA)
 
@@ -74,27 +60,32 @@ sns.histplot(df_train['SalePrice'], bins= 15, kde= True)
 plt.title('Sales Price per Counts')
 plt.xlabel('Counts')
 plt.ylabel('Sales Price')
+fig1.savefig(output_dir / "Histogram.png")
 
 
 # Heatmap Plot
 subset_train = df_train.filter(items= ['SalePrice', 'LotArea', 'LotFrontage', 'OverallCond', 'YearBuilt'])
-figure2 = plt.figure(figsize= (10,6))
+fig2 = plt.figure(figsize= (10,6))
 sns.heatmap(data = subset_train, cmap='coolwarm')
+fig2.savefig(output_dir / "Heatmap.png")
 
 
 # Boxplot SalePrice by Neighborhood
-figure3 = plt.figure(figsize= (10, 6))
+fig3 = plt.figure(figsize= (10, 6))
 sns.boxplot(x='Neighborhood', y='SalePrice', data=df_train)
+fig3.savefig(output_dir / "Boxplot_SalesByNeighborhood.png")
 
 
 # Boxplot SalePrice by OverallQual
-figure4 = plt.figure(figsize= (10,6))
+fig4 = plt.figure(figsize= (10,6))
 sns.boxplot(x = 'OverallQual', y='SalePrice', data = df_train)
+fig4.savefig(output_dir / "Boxplot_SalesByOverallQual.png")
 
 
 # Boxplot SalePrice by HouseStyle
-figure5 = plt.figure(figsize= (10, 6))
+fig5 = plt.figure(figsize= (10, 6))
 sns.boxplot(x = 'HouseStyle', y = 'SalePrice', data = df_train)
+fig5.savefig(output_dir / "Boxplot_SalesByHouseStyle.png")
 
 
 # 3. Feature Engineering
@@ -176,6 +167,14 @@ df_test_predicted['PredictedSalePrice_LinReg'] = y_pred_logReg
 df_test_predicted['PredictedSalePrice_Lasso'] = y_pred_lassoReg
 df_test_predicted['PredictedSalePrice_Ridge'] = y_pred_ridgeReg
 df_test_predicted['Id'] = test_ID
-df_test_predicted.to_csv('predicted.csv', index= False)
 
-plt.show()
+# Reorder columns to place 'Id' first
+cols = ['Id'] + [col for col in df_test_predicted.columns if col != 'Id']
+df_test_predicted = df_test_predicted[cols]
+
+# Save CSV File
+df_test_predicted.to_csv(output_dir / "predicted.csv", index=False)
+
+print(f"Linear Regression R2 Score: {r2ScoreLogReg}")
+print(f"Lasso Regression R2 Score: {r2ScoreLassoReg}")
+print(f"Ridge Regression R2 Score: {r2ScoreRidgeReg}")
