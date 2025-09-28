@@ -1,3 +1,33 @@
+"""
+Author: Omid Ahmadzadeh  
+GitHub: https://github.com/Omid4mit  
+Email: omid4mit@gmail.com  
+Date Created: 2025-08-02  
+Last Modified: 2025-08-09  
+
+Description:
+    This script benchmarks multiple regression algorithms on a synthetic dataset generated using scikit-learn.
+    It evaluates model performance using R² scores and compares predictive accuracy across regressors.
+
+    - Dataset: Synthetic regression data (100 samples, 2 features, Gaussian noise)
+    - Models Evaluated:
+        - Linear Regression
+        - Ridge Regression
+        - Lasso Regression
+        - Support Vector Regression (SVR)
+        - Decision Tree Regressor
+        - Random Forest Regressor
+        - Gradient Boosting Regressor
+        - Multi-Layer Perceptron (MLP) Regressor
+    - Workflow:
+        - Generate synthetic data
+        - Split into training and test sets
+        - Train each model and evaluate R² score
+
+"""
+
+
+# Import Libraries
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor

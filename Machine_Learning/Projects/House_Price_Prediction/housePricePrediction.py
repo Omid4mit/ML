@@ -1,3 +1,29 @@
+"""
+Author: Omid Ahmadzadeh  
+GitHub: https://github.com/Omid4mit  
+Email: omid4mit@gmail.com  
+Date Created: 2025-09-13
+Last Modified: 2025-09-28
+
+Description:
+    This script performs data cleaning, feature engineering, exploratory analysis, and regression modeling
+    to predict housing sale prices using the Ames Housing dataset:
+    
+    - Dataset: "House Prices - Advanced Regression Techniques" from Kaggle
+    - Step 1: Data Cleaning and Preprocessing
+        - Handle missing values and inconsistent entries
+        - Encode categorical variables
+        - Scale numerical features
+    - Step 2: Exploratory Data Analysis (EDA)
+        - Histogram, heatmap, and boxplots for key variables
+    - Step 3: Feature Engineering
+        - Create new features such as HouseAge and TotalSqFt
+    - Step 4: Model Building and Evaluation
+        - Train and evaluate Linear, Lasso, and Ridge regression models
+        - Save predictions to CSV
+
+"""
+
 # Import Libraries
 import numpy as np
 import pandas as pd

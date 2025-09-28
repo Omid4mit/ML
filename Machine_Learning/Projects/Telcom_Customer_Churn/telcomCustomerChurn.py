@@ -1,3 +1,30 @@
+"""
+Author: Omid Ahmadzadeh  
+GitHub: https://github.com/Omid4mit  
+Email: omid4mit@gmail.com  
+Date Created: 2025-08-02  
+Last Modified: 2025-09-28  
+
+Description:
+    This script performs data cleaning, feature engineering, exploratory analysis, and classification modeling
+    to predict customer churn using the Telco Customer Churn dataset:
+
+    - Dataset: "WA_Fn-UseC_-Telco-Customer-Churn.csv" from IBM Sample Data
+    - Step 1: Data Cleaning and Preprocessing
+        - Handle missing and inconsistent values
+        - Encode categorical variables
+        - Scale numerical features
+    - Step 2: Exploratory Data Analysis (EDA)
+        - Visualize tenure distribution, contract types, and churn rates
+    - Step 3: Feature Engineering
+        - Create encoded features for gender and churn
+    - Step 4: Model Building and Evaluation
+        - Train Logistic Regression, Random Forest, and Gradient Boosting classifiers
+        - Evaluate models using accuracy, precision, recall, F1 score, ROC AUC, and confusion matrix
+
+"""
+
+
 # Import Libraries
 import numpy as np
 import pandas as pd
@@ -9,11 +36,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
+from pathlib import Path
 
 # 1. Data Cleaning and Preprocessing
 # Load Data
 # loadedData = pd.read_csv('WA_Fn-UseC_-Telco-Customer-Churn.csv')
-loadedData = pd.read_csv(r'C:\Users\Omid.ahmadzadeh\VSCode\Machine_Learning\Projects\Telcom_Customer_Churn\WA_Fn-UseC_-Telco-Customer-Churn.csv')
+loadedData = pd.read_csv(Path(__file__).parent / "WA_Fn-UseC_-Telco-Customer-Churn.csv")
 df = pd.DataFrame(loadedData)
 
 # Replace TotalCharges Values ' ' to '' and '' to Null

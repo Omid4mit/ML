@@ -1,3 +1,32 @@
+"""
+Author: Omid Ahmadzadeh  
+GitHub: https://github.com/Omid4mit  
+Email: omid4mit@gmail.com  
+Date Created: 2025-08-02  
+Last Modified: 2025-09-28  
+
+Description:
+    This script benchmarks multiple classification algorithms on a synthetic dataset generated using scikit-learn.
+    It evaluates model performance using accuracy scores and compares training speed across classifiers.
+
+    - Dataset: Synthetic binary classification data (100 samples, 5 features)
+    - Models Evaluated:
+        - Logistic Regression
+        - K-Nearest Neighbors (KNN)
+        - Support Vector Machine (SVM)
+        - Decision Tree
+        - Random Forest
+        - Naïve Bayes
+        - Multi-Layer Perceptron (MLP)
+    - Workflow:
+        - Generate synthetic data
+        - Split into training and test sets
+        - Train each model and evaluate accuracy
+        - Measure total runtime
+
+"""
+
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
