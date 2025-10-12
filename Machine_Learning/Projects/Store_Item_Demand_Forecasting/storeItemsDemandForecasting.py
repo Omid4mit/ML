@@ -4,15 +4,19 @@ Author: Omid Ahmadzadeh
 GitHub: https://github.com/Omid4mit
 Email: omid4mit@gmail.com
 Date Created: 2025-10-07
-Last Modified: 2025-10-08
-Description:
-    This script performs data loading, cleaning, and exploratory analysis
-    and predict the future sales of different items at various stores based on 
-    their historical sales data:
-    - Dataset : "Store Item Demand Forecasting Challenge" on Kaggle
-    - Step1: Data Cleaning and Preparation
-    - Step2: Time Series EDA & Visualization
-    - Step3: Feature Engineering from Time
+Last Modified: 2025-10-12
+
+Project       : Store Item Demand Forecasting Challenge (Kaggle)  
+Description   :  
+    End-to-end pipeline for forecasting item-level sales across multiple stores using historical data.  
+    Includes data preparation, time series analysis, feature engineering, model training, and prediction.  
+
+Workflow Steps:  
+    1. Data Cleaning and Preparation  
+    2. Time Series EDA & Visualization  
+    3. Feature Engineering from Temporal Signals  
+    4. Model Training and Evaluation  
+    5. Final Prediction and Export
 
 """
 
@@ -305,7 +309,7 @@ models = {'Linear Regression': linearRegModel,
           'Random Forest Regression': randomForRegModel,
           'XGBoost': XGBRegModel}
 
-testDataPredicted = testData_sp.drop(columns= ['day_of_week', 'month',
+testDataPredicted = testData_sp.drop(columns= ['day_of_week', 'month','isTest',
                                                'year', 'sales_lag_1',
                                                'sales_lag_7', 'sales_7d_avg'])
 testDataPredicted = testDataPredicted.copy()
@@ -316,5 +320,9 @@ for name,model in models.items():
     testDataPredicted[salesColumnName] = y_pred
 
 
-# 6.1.5 Save CSV File
+# 6.1.7 Delete Date column from index (It could not save in CSV file as index)
+testDataPredicted.reset_index(inplace=True)
+
+
+# 6.1.6 Save CSV File
 testDataPredicted.to_csv(output_dir / "test_predicted_p.csv", index=False)
