@@ -1,23 +1,24 @@
 # %%
 """
-Author: Omid Ahmadzadeh
-GitHub: https://github.com/Omid4mit
-Email: omid4mit@gmail.com
-Date Created: 2025-10-07
-Last Modified: 2025-10-12
+Author        : Omid Ahmadzadeh
+GitHub        : https://github.com/Omid4mit
+Email         : omid4mit@gmail.com
+Created       : 2025-10-07
+Last Modified : 2025-10-14
 
-Project       : Store Item Demand Forecasting Challenge (Kaggle)  
-Description   :  
-    End-to-end pipeline for forecasting item-level sales across multiple stores using historical data.  
-    Includes data preparation, time series analysis, feature engineering, model training, and prediction.  
+Project       : Store Item Demand Forecasting Challenge (Kaggle)
+Description   :
+    Comprehensive pipeline for forecasting item-level sales across multiple stores using historical data.  
+    Includes data preparation, time series decomposition, rolling average visualization, feature engineering,  
+    model training, evaluation, and final prediction export.
 
-Workflow Steps:  
-    1. Data Cleaning and Preparation  
-    2. Time Series EDA & Visualization  
-    3. Feature Engineering from Temporal Signals  
-    4. Model Training and Evaluation  
-    5. Final Prediction and Export
-
+Workflow Steps:
+    1. Data Cleaning and Preparation
+    2. Time Series EDA & Visualization
+    3. Feature Engineering from Temporal Signals
+    4. Model Training and Validation (Linear, RF, XGBoost, LightGBM)
+    5. Full Dataset Retraining
+    6. Test Prediction and CSV Export
 """
 
 
@@ -34,6 +35,7 @@ from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
 from pathlib import Path
+from lightgbm import LGBMRegressor
 
 # 1. Data Cleaning and Preparation
 
@@ -207,89 +209,56 @@ y_train = train_set['sales']
 X_val = validation_set[features]
 y_val = validation_set['sales']
 
-# 4.4 Choose and Train Model (Linear Regression)
-linearRegModel = LinearRegression()
-linearRegModel.fit(X_train, y_train)
 
-# 4.5 Choose and Train Model (Gradinet Boosting Regression)
-gradientBoostModel = GradientBoostingRegressor(
-    n_estimators=100,     # Fewer boosting rounds
-    max_depth=3,          # Shallow trees
-    learning_rate=0.1,    # Standard step size
-    subsample=0.8,        # Use 80% of data per tree
-    random_state=42
-)
-gradientBoostModel.fit(X_train, y_train)
+# 4.4 Create a function to train all models
 
-# 4.6 Choose and Train Model (Random Forest Regression)
-randomForRegModel = RandomForestRegressor(
-    n_estimators=100,     # Number of trees (start small for speed)
-    max_depth=10,         # Limit tree depth to prevent overfitting
-    max_features='sqrt',  # Use a subset of features per split
-    n_jobs=-1,            # Use all CPU cores for parallel training
-    random_state=42
-)
-randomForRegModel.fit(X_train, y_train)
+def trainAllModels(X_train, y_train):
+    """Trains a dictionary of models and returns them."""
 
-# 4.7 Choose and Train Model (XGBoost)
-XGBRegModel = XGBRegressor()
-XGBRegModel.fit(X_train, y_train)
+    models = {
+        'Linear Regression': LinearRegression(),
+        'Random Forest' : RandomForestRegressor(n_estimators=100, max_depth=10, n_jobs=-1, random_state=42),
+        'XGBoost' : XGBRegressor(random_state=42),
+        'Light GBM' : LGBMRegressor(n_estimators=1000, learning_rate=0.05,num_leaves=31,n_jobs=-1,random_state=42,force_row_wise=True)
+        }
 
-# 4.8 Evaluate model on the validation_set
-models = {'Linear Regression': linearRegModel,
-          'Gradinet Boosting Regression': gradientBoostModel,
-          'Random Forest Regression': randomForRegModel,
-          'XGBoost': XGBRegModel}
+    for name, model in models.items():
+        print(f"Training {name}")
+        model.fit(X_train, y_train)
+    
+    return models
+    
 
-for name, model in models.items():
+# 4.5 Training train set with trainAllModels function
+validatedModels = trainAllModels(X_train, y_train)
+
+
+# 4.6 Use trained models to validate models with validation set
+for name, model in validatedModels.items():
     y_pred = model.predict(X_val)
     mae = mean_absolute_error(y_val, y_pred)
     print(f"Mean Absolute Error of {name} is {mae}")
 
 
+
 # 5 Retrain Model with full training dataset
-# (I trainded model with just a portion of training dataset,So I want train it with full dataset)
+""" (I trainded model with just a portion of training dataset,
+    So I want train it with full dataset) """
 
 # 5.1 Create X and y with full training dataset
 X_train_full = trainData_sp[features]
 y_train_full = trainData_sp['sales']
 
-# 5.2 Choose and Train Model (Linear Regression)
-linearRegModel = LinearRegression()
-linearRegModel.fit(X_train_full, y_train_full)
+# 5.2 Use full dataset with trainAllModels function
+fullDataModels = trainAllModels(X_train_full, y_train_full)
 
-# 5.3 Choose and Train Model (Gradinet Boosting Regression)
-gradientBoostModel = GradientBoostingRegressor(
-    n_estimators=100,     # Fewer boosting rounds
-    max_depth=3,          # Shallow trees
-    learning_rate=0.1,    # Standard step size
-    subsample=0.8,        # Use 80% of data per tree
-    random_state=42
-)
-gradientBoostModel.fit(X_train_full, y_train_full)
-
-# 5.4 Choose and Train Model (Random Forest Regression)
-randomForRegModel = RandomForestRegressor(
-    n_estimators=100,     # Number of trees (start small for speed)
-    max_depth=10,         # Limit tree depth to prevent overfitting
-    max_features='sqrt',  # Use a subset of features per split
-    n_jobs=-1,            # Use all CPU cores for parallel training
-    random_state=42
-)
-randomForRegModel.fit(X_train_full, y_train_full)
-
-# 5.5 Choose and Train Model (XGBoost)
-XGBRegModel = XGBRegressor()
-XGBRegModel.fit(X_train_full, y_train_full)
 
 
 # 6 Predict Values for Test Dataset
-
 # 6.1 Prepare Test Data
 
 # 6.1.1 Split test data from full data
 testData_sp = fullData_fe[fullData_fe['isTest']]
-testData_sp.head()
 
 # 6.1.2 Create X_test out of testData_sp
 features = ['store', 'item', 'day_of_week', 'month','year',
@@ -297,32 +266,26 @@ features = ['store', 'item', 'day_of_week', 'month','year',
 
 X_test_file = testData_sp[features]
 X_test_file = X_test_file.ffill().bfill()
-X_test_file.head()
 
-# 6.1.3 Predict y value for test dataset (sales value) with Linrear Regression
-y_pred = linearRegModel.predict(X_test_file)
-y_pred
-
-# 6.1.4 Create a loop for predicting sales value with all models
-models = {'Linear Regression': linearRegModel,
-          'Gradinet Boosting Regression': gradientBoostModel,
-          'Random Forest Regression': randomForRegModel,
-          'XGBoost': XGBRegModel}
-
+# 6.1.3 Drop unnecessary columns
 testDataPredicted = testData_sp.drop(columns= ['day_of_week', 'month','isTest',
                                                'year', 'sales_lag_1',
                                                'sales_lag_7', 'sales_7d_avg'])
+
+# 6.1.4 Create a copy of test prediction dataframe
 testDataPredicted = testDataPredicted.copy()
 
-for name,model in models.items():
+
+# 6.1.5 Create a loop to predict target values for all models
+for name,model in fullDataModels.items():
     salesColumnName = f"{name} Predicted Sales"
     y_pred = model.predict(X_test_file)
     testDataPredicted[salesColumnName] = y_pred
 
 
-# 6.1.7 Delete Date column from index (It could not save in CSV file as index)
+# 6.1.6 Delete Date column from index (It could not save in CSV file as index)
 testDataPredicted.reset_index(inplace=True)
 
 
-# 6.1.6 Save CSV File
-testDataPredicted.to_csv(output_dir / "test_predicted_p.csv", index=False)
+# 6.1.7 Save CSV File
+testDataPredicted.to_csv(output_dir / "test_predicted_t.csv", index=False)
